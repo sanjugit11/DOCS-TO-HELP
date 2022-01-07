@@ -1,0 +1,58 @@
+swapExactETHForTokens   //eth to  any token
+0x021416AC43bb8E971C13E93bB9259d5b96217f45
+
+0xC39192Cc62eDc7668bD5c2280277caEbdc7c48E4   //fee to setter addr 2
+
+0x04747b0B8df47FD454A7EBa3E507dc19F4950EE8   //get pair
+
+0x8cdFcF107492a7fC6c4Ace58a6E71322D123aDB4 /// this is the core factory contract address
+
+0xc778417e063141139fce010982780140aa0cd5ab  // this is the  WETH address of the ropsten
+----------------------------------------------------------
+
+--------------second deployment-------------------
+deploy the  factory 
+feetosetter =0xC39192Cc62eDc7668bD5c2280277caEbdc7c48E4
+router   = 0xb2552dDf3491B7E20f6Ef299B37fd47Bc37A2AF6
+pair  = 0x033253caa1f9ca0b1490f141837272113aaaa326
+
+token1  0x217f6231Ff4BE279F964aa75C39B14561E8C146e
+token2  0x209A73cA00020963b38c5CB778492ecc5BB94F47
+--------------------------------------------------
+addr1 = 0x021416AC43bb8E971C13E93bB9259d5b96217f45
+addr2 = 0xC39192Cc62eDc7668bD5c2280277caEbdc7c48E4
+addr3 = 0x88c4e7ae1eD97D615eEF4D54Be66F3E577B8625D
+addr4 = 0xEf573757df84EFF73C79093A86dD9Dc5edDa8670
+addr5 = 0x3b4e9525Eb38c93CD1D418ec4730BFc99423576F
+addr6 = 0x7518dd4Fa612525163A116C0654E941736f2c426
+addr7 = 0x4d431283f8B0ADf56D3C7E78bCf883e4ADA3A86a
+addr8 = 0x498fB1560E647325EEbB4D344Fb4aB803cc373B9
+addr9 = 0x6EF8EABdea0fA961a3297978eCB1f38eb24Ed5f9
+adr 10= 0xFB57FbDBdb350B4DE5ce98058E8cb903e37dDee0
+-------------------------------------------
+addr 3   = 0x88c4e7ae1eD97D615eEF4D54Be66F3E577B8625D
+
+----------------------------------------
+
+______Router deployment__________
+1. deploy  factory
+
+2. deploy the routerV2
+     -factory address
+     -WETH adddress
+     
+     CHANGES-
+ 
+     
+
+
+Gowtham@antiersolutions.com
+///remix to rimixD
+sudo npm install -g @remix-project/remixd    //to install remremixd -s uniswap --
+remixd -s FOLDERNAME --remix-ide https://remix.ethereum.org    //run in terminal
+                                                             to run the file
+run the localhost remixide                                                   
+                                                             
+
+
+

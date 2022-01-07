@@ -1,0 +1,50 @@
+// require("@nomiclabs/hardhat-web3");
+////////////////////  for getting the balance ////////////////
+task("balance", "Prints sanju's account's balance")
+.addParam("account", "The sanju's account's address")
+.setAction(async (testargs) => {
+  const provider = new ethers.providers.JsonRpcProvider("https://ropsten.infura.io/v3/9e8281cbc5db4535b935d4e7abd2633e");          //this is adding the provider
+  const balance = await provider.getBalance(testargs.account);//("0x0aAD2087B4c9043F02F898205d4A4E9c70858D7e");
+  console.log(ethers.utils.formatEther(balance));
+
+});
+
+
+/////////////////// for deployment ////////////////////////
+task("deploy","this will deploy the contract")
+.addParam("privatekey","now deploy ready")
+.setAction(async (testargs)=>{
+  
+  const provider = new ethers.providers.JsonRpcProvider("https://ropsten.infura.io/v3/9e8281cbc5db4535b935d4e7abd2633e");
+  const storageAbi =[
+  
+  const bytecode = 
+    const privateKey = testargs.privatekey;//'7f4d2b61dd4687bb34fb2bfc429b51735bff68ff984a0afce8a4600cc6bbf8b9';
+    const wallet = new ethers.Wallet(privateKey, provider);
+
+    const price = ethers.utils.formatUnits(await provider.getGasPrice(), 'gwei');
+    const options = {
+      gasLimit: 100000, 
+      gasPrice: ethers.utils.parseUnits(price, 'gwei'),
+      }
+
+      const Factory= new ethers.ContractFactory(storageAbi,bytecode,wallet);
+      const contract = await Factory.deploy(options);
+      console.log(contract.address);
+
+});
+
+
+task("chainlink","get the price of ETH/USD")
+.addParam("link","address to link")
+.setAction(async (testargs) =>{
+  const provider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/9e8281cbc5db4535b935d4e7abd2633e");
+  const ethUsdAddr = testargs.link; //"0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419";
+  const Abi = 
+  const DaiUsdContract = new ethers.Contract(ethUsdAddr, Abi, provider);
+  const price = await DaiUsdContract.latestAnswer();
+  // console.log(ethers.utils.parseUnits(price, 'gwei'));
+  console.log(Number(price));
+  const money = Number(price);
+  console.log(ethers.utils.formatUnits(money, 8 ));
+})

@@ -1,0 +1,502 @@
+import {
+  UniswapV2Router02,
+  UniswapV2Router02__factory,
+  UniswapV2Factory,
+  UniswapV2Factory__factory,
+  Factory,
+  Factory__factory,
+  
+  CalHash,
+  CalHash__factory,
+  WETH9,
+  WETH9__factory,
+  ERC20,
+  ERC20__factory,
+  UniswapV2Pair,
+  UniswapV2Pair__factory,
+  IUniswapV2Pair,
+  IUniswapV2Pair__factory
+} from "../typechain";
+
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
+import { ethers } from "hardhat";
+import { mineBlocks, expandTo18Decimals } from "./utilities/utilities";
+import { expect } from "chai";
+
+describe("Router", async () => {
+  let router: UniswapV2Router02;
+  let factory: UniswapV2Factory;
+  let factory1: Factory;
+  let WETH: WETH9;
+  let calHash: CalHash;
+  let pair: UniswapV2Pair;
+  let owner: SignerWithAddress;
+  let s1: SignerWithAddress;
+  let signers: SignerWithAddress[];
+
+  beforeEach(async () => {
+    signers = await ethers.getSigners();
+    owner = signers[0];
+     s1= signers[1];
+
+
+    factory1 = await new Factory__factory(owner).deploy();
+    WETH = await new WETH9__factory(owner).deploy();
+    pair= await new UniswapV2Pair__factory(owner).deploy();
+    router = await new UniswapV2Router02__factory(owner).deploy(factory1.address, WETH.address);
+  });
+
+  it("add liquidity", async function () {
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let token2  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await token2.approve(router.address,expandTo18Decimals(1000));
+
+    
+    await router.connect(owner).addLiquidity(token1.address, token2.address,
+      expandTo18Decimals(10),expandTo18Decimals(10),
+      expandTo18Decimals(1),expandTo18Decimals(1),owner.address,1678948210);
+
+      const Pair = await factory1.getPair(token1.address, token2.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+      expect(Reserve0).to.be.lessThanOrEqual(Number(expandTo18Decimals(10)));
+      expect(Reserve1).to.be.lessThanOrEqual(Number(expandTo18Decimals(10)));
+
+  });
+
+  it("add Liquidity ETH", async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    
+    
+    await router.connect(owner).addLiquidityETH(token1.address,
+      expandTo18Decimals(10),
+      expandTo18Decimals(1),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+
+      const Pair = await factory1.getPair(token1.address, WETH.address);
+      
+      const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+        
+        let result = await Pair_instance.getReserves();
+        let Reserve0= Number(result._reserve0);
+        let Reserve1= Number(result._reserve1);
+        expect(Reserve0).to.be.lessThanOrEqual(Number(expandTo18Decimals(10)));
+        expect(Reserve1).to.be.lessThanOrEqual(Number(expandTo18Decimals(10)));
+  })
+  it("add Liquidity reverts if the amount is greater than the actual available number of tokens ", async function() {
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let token2  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    await token1.connect(owner).transfer(s1.address,expandTo18Decimals(10));
+    await token1.connect(s1).approve(router.address,expandTo18Decimals(1000));
+    await token2.connect(owner).transfer(s1.address,expandTo18Decimals(10));
+    await token2.connect(s1).approve(router.address,expandTo18Decimals(1000));
+    await expect(router.connect(s1).addLiquidity(token1.address, token2.address,
+      expandTo18Decimals(20),expandTo18Decimals(20),
+      expandTo18Decimals(1),expandTo18Decimals(1),s1.address,1678948210)).revertedWith("transferFrom: transferFrom failed");
+  })
+  it("AddLiquidityETH transfer fails",async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    await token1.connect(owner).transfer(s1.address,expandTo18Decimals(10));
+    await token1.connect(s1).approve(router.address,expandTo18Decimals(1000));
+    await expect(router.connect(owner).addLiquidityETH(token1.address,
+      expandTo18Decimals(10),
+      expandTo18Decimals(1),expandTo18Decimals(1),owner.address,1678948210,{value : "125"})).revertedWith("transferFrom: transferFrom failed");
+  })
+  it("swapExactTokensForTokens",async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let token2  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let array = [token1.address, token2.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await token2.approve(router.address,expandTo18Decimals(1000));
+    await router.connect(owner).addLiquidity(token1.address, token2.address,
+      expandTo18Decimals(10),expandTo18Decimals(10),
+      expandTo18Decimals(1),expandTo18Decimals(1),owner.address,1678948210);
+
+      const Pair = await factory1.getPair(token1.address, token2.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+      
+     
+     await router.connect(owner).swapExactTokensForTokens(expandTo18Decimals(2),expandTo18Decimals(1), array, owner.address,1678948210);
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+     Reserve1=Number(result1._reserve1);
+     
+     let AmountIn=await router.connect(owner).getAmountsOut(expandTo18Decimals(2),array);
+     let a1=Number(AmountIn[1]);
+     
+     expect(Reserve0).to.be.lessThan(Reserve2);
+  })
+
+  it("swapTokensForExactTokens",async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let token2  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let array = [token1.address,token2.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await token2.approve(router.address,expandTo18Decimals(1000));
+
+    
+    await router.connect(owner).addLiquidity(token1.address, token2.address,
+      expandTo18Decimals(10),expandTo18Decimals(10),
+      expandTo18Decimals(1),expandTo18Decimals(1),owner.address,1678948210);
+
+      const Pair = await factory1.getPair(token1.address, token2.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+     await router.connect(owner).swapTokensForExactTokens(expandTo18Decimals(2),expandTo18Decimals(100),array,owner.address,1678948210);
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+     expect(Reserve2).to.be.greaterThanOrEqual(Reserve0);
+
+  })
+  it("swapExactEthForTokens", async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let array = [WETH.address, token1.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await WETH.approve(router.address,expandTo18Decimals(100));
+    
+    await router.connect(owner).addLiquidityETH(token1.address,
+      expandTo18Decimals(100),
+      expandTo18Decimals(1),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+
+      const Pair = await factory1.getPair(WETH.address, token1.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+     await router.connect(owner).swapExactETHForTokens(expandTo18Decimals(10), array, owner.address,1678948210,{value : "125"});
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+     Reserve1=Number(result1._reserve1);
+    
+     expect(Reserve2).to.be.lessThan(Reserve0);
+  })
+  it("swapTokensForExactEth",async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+   
+    let array = [token1.address, WETH.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    
+    await WETH.approve(router.address,expandTo18Decimals(100));
+    
+    await router.connect(owner).addLiquidityETH(token1.address,
+      expandTo18Decimals(100),
+      expandTo18Decimals(100),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+
+      const Pair = await factory1.getPair(WETH.address, token1.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+      let AmountIn=await router.connect(owner).getAmountsIn(2,array);
+      let a1=Number(AmountIn[0]);
+     await router.connect(owner).swapTokensForExactETH(2,expandTo18Decimals(83), array, owner.address,1678948210);
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+    AmountIn=await router.connect(owner).getAmountsOut(expandTo18Decimals(200),array);
+      a1=Number(AmountIn[1]);
+      expect(Reserve2).to.be.greaterThanOrEqual(Reserve0);
+  })
+  it("swapExactTokensForETH",async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let array = [token1.address, WETH.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await WETH.approve(router.address,expandTo18Decimals(100));
+    
+    await router.connect(owner).addLiquidityETH(token1.address,
+      expandTo18Decimals(100),
+      expandTo18Decimals(100),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+
+      const Pair = await factory1.getPair(WETH.address, token1.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+      let AmountOut=await router.connect(owner).getAmountsOut(expandTo18Decimals(1),array);
+      let a1=Number(AmountOut[1]);
+     await router.connect(owner).swapExactTokensForETH(expandTo18Decimals(1),1, array, owner.address,1678948210);
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+     expect(Reserve2).to.be.lessThanOrEqual(Reserve0);
+  })
+  it("swapETHForExactTokens",async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let array = [WETH.address, token1.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await WETH.approve(router.address,expandTo18Decimals(100));
+    
+    await router.connect(owner).addLiquidityETH(token1.address,
+      expandTo18Decimals(100),
+      expandTo18Decimals(100),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+
+      const Pair = await factory1.getPair(WETH.address, token1.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+      let AmountOut=await router.connect(owner).getAmountsIn(expandTo18Decimals(1),array);
+      let a1=Number(AmountOut[0]);
+     await router.connect(owner).swapETHForExactTokens(expandTo18Decimals(1), array, owner.address,1678948210,{value : "125"});
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+     expect(Reserve2).to.be.greaterThanOrEqual(Reserve0);
+  })
+
+  it("swapExactTokensForTokens REVERT FOR AMOUNT LESS THAN AMOUNT OUT MIN",async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let token2  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let array = [token1.address, token2.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await token2.approve(router.address,expandTo18Decimals(1000));
+
+    
+    await router.connect(owner).addLiquidity(token1.address, token2.address,
+      expandTo18Decimals(10),expandTo18Decimals(10),
+      expandTo18Decimals(1),expandTo18Decimals(1),owner.address,1678948210);
+
+      const Pair = await factory1.getPair(token1.address, token2.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+      let _AmountOut=await router.connect(owner).getAmountsOut(expandTo18Decimals(2),array);
+      let a1=Number(_AmountOut[1]);
+     await expect(router.connect(owner).swapExactTokensForTokens(expandTo18Decimals(2),expandTo18Decimals(50), array, owner.address,1678948210)).revertedWith("UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT");
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+     let AmountOut=await router.connect(owner).getAmountsOut(expandTo18Decimals(1),array);
+      let a2=Number(AmountOut[1]);
+  })
+
+  it("swapTokensForExactTokens Fails: EXCESSIVE AMOUNT IN",async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let token2  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let array = [token1.address,token2.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await token2.approve(router.address,expandTo18Decimals(1000));
+
+    
+    await router.connect(owner).addLiquidity(token1.address, token2.address,
+      expandTo18Decimals(10),expandTo18Decimals(10),
+      expandTo18Decimals(1),expandTo18Decimals(1),owner.address,1678948210);
+
+      const Pair = await factory1.getPair(token1.address, token2.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+      let AmountOut=await router.connect(owner).getAmountsIn(expandTo18Decimals(1),array);
+      let a1=Number(AmountOut[0]);
+     await expect( router.connect(owner).swapTokensForExactTokens(expandTo18Decimals(1),expandTo18Decimals(1),array,owner.address,1678948210)).revertedWith("UniswapV2Router: EXCESSIVE_INPUT_AMOUNT");
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+      AmountOut=await router.connect(owner).getAmountsIn(expandTo18Decimals(1),array);
+       a1=Number(AmountOut[0]);
+
+  })
+
+  it("swapExactEthForTokens Fails: INVALID PATH", async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let array = [token1.address, WETH.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await WETH.approve(router.address,expandTo18Decimals(100));
+    
+    await router.connect(owner).addLiquidityETH(token1.address,
+      expandTo18Decimals(100),
+      expandTo18Decimals(1),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+
+      const Pair = await factory1.getPair(WETH.address, token1.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+     await expect(router.connect(owner).swapExactETHForTokens(expandTo18Decimals(10), array, owner.address,1678948210,{value : "125"})).revertedWith("UniswapV2Router: INVALID_PATH");
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+  })
+  it("swapExactEthForTokens Fails: INSUFFICIENT_OUTPUT_AMOUNT", async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let array = [WETH.address, token1.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await WETH.approve(router.address,expandTo18Decimals(100));
+    
+    await router.connect(owner).addLiquidityETH(token1.address,
+      expandTo18Decimals(100),
+      expandTo18Decimals(1),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+
+      const Pair = await factory1.getPair(WETH.address, token1.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+     await expect(router.connect(owner).swapExactETHForTokens(expandTo18Decimals(50), array, owner.address,1678948210,{value : "125"})).revertedWith("UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT");
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+  })
+
+  it("swapTokensForExactEth FAils: INVALID PATH",async function(){
+    let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+    let array = [WETH.address, token1.address];
+    await token1.approve(router.address,expandTo18Decimals(1000));
+    await WETH.approve(router.address,expandTo18Decimals(100));
+    
+    await router.connect(owner).addLiquidityETH(token1.address,
+      expandTo18Decimals(100),
+      expandTo18Decimals(100),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+
+      const Pair = await factory1.getPair(WETH.address, token1.address);
+    
+    const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+      
+      let result = await Pair_instance.getReserves();
+      let Reserve0= Number(result._reserve0);
+      let Reserve1= Number(result._reserve1);
+      let AmountIn=await router.connect(owner).getAmountsIn(2,array);
+      let a1=Number(AmountIn[0]);
+     await expect(router.connect(owner).swapTokensForExactETH(2,expandTo18Decimals(83), array, owner.address,1678948210)).revertedWith("UniswapV2Router: INVALID_PATH");
+     let result1 = await Pair_instance.getReserves();
+     let Reserve2= Number(result1._reserve0);
+    AmountIn=await router.connect(owner).getAmountsOut(expandTo18Decimals(200),array);
+      a1=Number(AmountIn[1]);
+    })
+
+
+    it("swapTokensForExactEth Fails: EXCESSIVE_INPUT_AMOUNT",async function(){
+      let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+      let array = [token1.address, WETH.address];
+      await token1.approve(router.address,expandTo18Decimals(1000));
+      await WETH.approve(router.address,expandTo18Decimals(100));
+      
+      await router.connect(owner).addLiquidityETH(token1.address,
+        expandTo18Decimals(100),
+        expandTo18Decimals(100),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+  
+        const Pair = await factory1.getPair(WETH.address, token1.address);
+      
+      const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+        
+        let result = await Pair_instance.getReserves();
+        let Reserve0= Number(result._reserve0);
+        let Reserve1= Number(result._reserve1);
+        let AmountIn=await router.connect(owner).getAmountsIn(2,array);
+        let a1=Number(AmountIn[0]);
+       await expect(router.connect(owner).swapTokensForExactETH(2,expandTo18Decimals(1), array, owner.address,1678948210)).revertedWith("UniswapV2Router: EXCESSIVE_INPUT_AMOUNT");
+       let result1 = await Pair_instance.getReserves();
+       let Reserve2= Number(result1._reserve0);
+      AmountIn=await router.connect(owner).getAmountsOut(expandTo18Decimals(200),array);
+        a1=Number(AmountIn[1]);
+      })  
+      it("swapExactTokensForETH Fails: INVALID PATH",async function(){
+        let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+        let array = [WETH.address, token1.address];
+        await token1.approve(router.address,expandTo18Decimals(1000));
+        await WETH.approve(router.address,expandTo18Decimals(100));
+        
+        await router.connect(owner).addLiquidityETH(token1.address,
+          expandTo18Decimals(100),
+          expandTo18Decimals(100),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+    
+          const Pair = await factory1.getPair(WETH.address, token1.address);
+        
+        const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+          
+          let result = await Pair_instance.getReserves();
+          let Reserve0= Number(result._reserve0);
+          let Reserve1= Number(result._reserve1);
+          let AmountOut=await router.connect(owner).getAmountsOut(expandTo18Decimals(1),array);
+          let a1=Number(AmountOut[1]);
+         await expect(router.connect(owner).swapExactTokensForETH(expandTo18Decimals(1),1, array, owner.address,1678948210)).revertedWith("UniswapV2Router: INVALID_PATH");
+         let result1 = await Pair_instance.getReserves();
+         let Reserve2= Number(result1._reserve0);
+      })
+      it("swapExactTokensForETH Fails: INSUFFICIENT_OUTPUT_AMOUNT ",async function(){
+        let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+        let array = [token1.address, WETH.address];
+        await token1.approve(router.address,expandTo18Decimals(1000));
+        await WETH.approve(router.address,expandTo18Decimals(100));
+        
+        await router.connect(owner).addLiquidityETH(token1.address,
+          expandTo18Decimals(100),
+          expandTo18Decimals(100),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+    
+          const Pair = await factory1.getPair(WETH.address, token1.address);
+        
+        const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+          
+          let result = await Pair_instance.getReserves();
+          let Reserve0= Number(result._reserve0);
+          let Reserve1= Number(result._reserve1);
+          let AmountOut=await router.connect(owner).getAmountsOut(expandTo18Decimals(1),array);
+          let a1=Number(AmountOut[1]);
+         await expect(router.connect(owner).swapExactTokensForETH(expandTo18Decimals(1),expandTo18Decimals(100), array, owner.address,1678948210)).revertedWith("UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT");
+      })    
+      it("swapETHForExactTokens Fails: INVALID PATH ",async function(){
+        let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+        let array = [token1.address, WETH.address];
+        await token1.approve(router.address,expandTo18Decimals(1000));
+        await WETH.approve(router.address,expandTo18Decimals(100));
+        
+        await router.connect(owner).addLiquidityETH(token1.address,
+          expandTo18Decimals(100),
+          expandTo18Decimals(100),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+    
+          const Pair = await factory1.getPair(WETH.address, token1.address);
+        
+        const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+          
+         
+           let st = "UniswapV2Router: INVALID_PATH";
+          await expect(router.connect(owner).swapETHForExactTokens(expandTo18Decimals(1), array, owner.address,1678948210,{value : "125"})).revertedWith(st);
+       
+      })
+      it("swapETHForExactTokens Fails: EXCESSIVE INPUT AMOUNT",async function(){
+        let token1  =  await new ERC20__factory(owner).deploy(expandTo18Decimals(1000));
+        let array = [WETH.address, token1.address];
+        await token1.approve(router.address,expandTo18Decimals(1000));
+        await WETH.approve(router.address,expandTo18Decimals(100));
+        
+        await router.connect(owner).addLiquidityETH(token1.address,
+          expandTo18Decimals(100),
+          expandTo18Decimals(100),expandTo18Decimals(1),owner.address,1678948210,{value : "125"});
+    
+          const Pair = await factory1.getPair(WETH.address, token1.address);
+        
+        const Pair_instance = await new UniswapV2Pair__factory(owner).attach(Pair);
+          
+          
+         await expect(router.connect(owner).swapETHForExactTokens(expandTo18Decimals(86), array, owner.address,1678948210,{value : "125"})).revertedWith("UniswapV2Router: EXCESSIVE_INPUT_AMOUNT");
+        
+      })  
+      
+});
