@@ -1,0 +1,52 @@
+clone the git repo of hello world
+
+// solana javascript api//
+ 	  npm install --save @solana/web3.js         
+   OR    yarn add @solana/web3.js
+
+// rust install//
+  	 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh      
+        rustc --version
+//solana install//
+	sh -c "$(curl -sSfL https://release.solana.com/v1.9.13/install)"
+**set the path
+	solana --version
+	
+//Set CLI config url to localhost cluster//
+	solana config set --url localhost	
+//Create CLI Keypair//
+**If this is your first time using the Solana CLI, you will need to generate a new keypair:
+	solana-keygen new	
+	
+Wrote new keypair to /home/user/.config/solana/id.json
+==============================================================================Antier@123
+pubkey: BjMxqKThxkaemzFzjcFkM3MwVe84LZGkDaAytTzypAuE
+==============================================================================
+Save this seed phrase and your BIP39 passphrase to recover your new keypair:
+glory roast armor fringe scout vast original pistol control window art sadness
+==============================================================================
+
+
+//to run the testledzer  for local// in 1st terminal
+	solana-test-validator    
+//Listen to transaction logs://     in 2nd terminal
+	solana logs
+//to build or say compile the rust//
+	npm run build:program-rust	//cargo build-bpf   or npm run build:program-rust    //compile
+// deploy the contract
+	solana program deploy dist/program/helloworld.so
+// intract with contract with javascript client
+	npm run start
+	
+** for devnet **		
+//set url of dev net//	
+	solana config set --url devnet
+//solana account and its balance
+       solana balance
+       solana account
+       solana airdrop 2     //2 is the number for balance	
+	
+	cargo build-bpf   or npm run build:program-rust    //compile
+	
+
+	

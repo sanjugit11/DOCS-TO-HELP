@@ -1,0 +1,41 @@
+update the node version
+________slither____________
+**install
+pip3 install slither-analyzer
+
+**run
+slether .
+
+ ______myhtril_____________
+ sudo apt-get install python3-pip
+sudo apt-get update
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository -y ppa:ethereum/ethereum
+sudo apt-get install -y solc
+pip3 install mythril==0.8.11
+pip3 uninstall web3
+pip3 install web3==3.16.5
+________echidna____________
+
+pip3 install slither-analyzer --user
+git clone --depth 1 https://github.com/crytic/echidna.git
+
+no installtion
+
+_______manticore___________
+**set up virtual env
+python3 -m pip install --user virtualenv
+python3 -m venv env
+**activate
+source env/bin/activate
+which python                    //get the python interpreter.
+
+**deactivate the virtual env
+deactivate
+
+______smartcheck___________
+npm install @smartdec/smartcheck -g
+smartcheck -p .
+
+
+

@@ -1,0 +1,20 @@
+pull
+
+git init
+git branch   //for all the branch we are on 
+git merge BRANCH-NmaE   //if we want to merge from another branch
+       //EG :- git merge origin/bonding_25feb
+       //EG :- git merge origin/bonding_25feb --allow-unrelated-histories
+  OR
+git pull  // if we are in same branch
+    
+git checkout BRANCH-NAME       //TO MOVE IB ANOTHER BRANCH
+git checkout -b BRANCH-NAME    //MADE NEW BRANCH AND THEN MOVE IN IT      
+
+
+git remote -v      // to check the origin URL
+git remote remove origin    // to delete the previous origin
+git remote add origin git@github.com:sanjugit11/DaoFrontend.git       //to set the new url
+
+git fetch --all    //to fetch the branch
+git merge  BRANCHNAME    //to merge the changes in present repo from another repo

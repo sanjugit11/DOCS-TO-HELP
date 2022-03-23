@@ -1,0 +1,37 @@
+functions are called as MACRO
+
+cargo new FOLderName
+//..this will create the rustd ependecy file with a hello world rust code
+
+cargo build
+//.. this will compile the code and made a target folder for exuteable compile file
+
+cargo run
+//.. this will compile the code and excute it at the same time
+
+_________________variable________________________
+//..variable are defined and printed 
+let a = 2;
+    let b= 4;
+    println!("Hello,{}, {}",a,b);     //{} this necessary to define for variable
+    
+//Array    
+     let arrDefine:[u8; 4] = [1,2,3,4];
+    println!("array:{}",arrDefine[0]);      //print array at zero memory 1
+    
+//array to print multiple time
+    let arr:[u8; 5]= [100;5];
+    println!("{:?}",arr);                 //this qill print 
+    
+    OUTPUT= [100, 100, 100, 100, 100]  
+    
+//tuple to print different variables
+   let tuple :(u8 , bool ,f32)=(5,true,4.4);
+    println!("first:{},second:{},third{}",tuple.0, tuple.1, tuple.2);
+    
+    OUTPUT= first:5,second:true,third4.4
+    
+__________function_____________    
+    
+    
+    
