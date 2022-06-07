@@ -1,0 +1,144 @@
+// this is how to get the balance with solana web3
+//phnatom wallet   door bless shoe welcome air adjust margin depart document cruise kind toss
+//install 
+npm i @solana/web3.js
+---------------------------1------------------------
+// const { Keypair } = require("@solana/web3.js")
+const {Connection,
+    PublicKey,
+    clusterApiUrl,
+    Keypair,
+    LAMPORTS_PER_SOL} = require("@solana/web3.js")
+
+    const wallet = new Keypair();
+    console.log(wallet ,"wallet"); 
+    wallet._keypair.publicKey  //this is the Array of key
+    const publicKEY = new PublicKey(wallet._keypair.publicKey);
+    console.log(wallet.publicKey,"publicKEY");
+    const secretKEY = wallet._keypair.secretKey;
+    console.log(secretKEY,"secretKEY");
+    
+    const getWalletBalance = async() =>{
+        const connection = new Connection(clusterApiUrl('devnet'),'confirmed')
+        // const fromAirdropSignature = await connection.requestAirdrop(wallet.publicKey, LAMPORTS_PER_SOL);
+        try{
+            const WalletBalance = await connection.getBalance(publicKEY);
+            console.log(WalletBalance,"wallet");
+        }catch(err){
+            console.error(err)
+        }
+    };
+
+    const AirdropSol = async() =>{
+        try{
+            const connection =new Connection(clusterApiUrl('devnet'),"confirmed");
+            const fromAirdropSignature = await connection.requestAirdrop(publicKEY,2*LAMPORTS_PER_SOL)
+            const latestBlockHash = await connection.getLatestBlockhash();
+
+            await connection.confirmTransaction({
+              blockhash: latestBlockHash.blockhash,
+              lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+              signature: fromAirdropSignature,
+              // await connection.confirmTransaction(fromAirdropSignature);  //not working now
+            });
+        }catch(err){
+            console.log(err);
+
+        }
+    }
+    const main = async() =>{
+        await AirdropSol() ;
+        await getWalletBalance();
+
+    }
+
+   main()
+------------------------solana install-----------------------------------------------------
+sh -c "$(curl -sSfL https://release.solana.com/v1.10.23/install)"
+
+** then export
+solana --version
+---------------------------new wallet key----------------------------------------------
+solana-keygen new --force
+
+Wrote new keypair to /home/user/.config/solana/id.json
+=======================================================================
+pubkey: DXVKGKWRtAC7TKihYkLLnk8FiuesrmzKjndmDVkCWoPG
+=======================================================================
+Save this seed phrase and your BIP39 passphrase to recover your new keypair:
+jungle pluck broken million music sport slow gas tumble forum live love
+=======================================================================
+
+solana-keygen pubkey     // to see the public key
+solana balance --url devnet     //check the balance in devnet
+
+//request for balance
+solana airdrop 2 DXVKGKWRtAC7TKihYkLLnk8FiuesrmzKjndmDVkCWoPG --url devnet
+
+-------------------------------token creating------------------------------------
+spl-token create-token --url devnet         //for devent
+
+Creating token 3F4ULYaiafDhGtz2m36CCAMCV9xn7xU6rko5Mwtebk9g
+
+Signature: 44ueRSdmL2nFAzgFHZb5JRLzKvBYtkZMtTYYFt7wTL1eCVHdntYC3eVauJ8SMjYe5KATEegJWQBEcujoBNN1Uumc
+
+---------------**we need a wallet account to hold the token-------------
+spl-token create-account 3F4ULYaiafDhGtz2m36CCAMCV9xn7xU6rko5Mwtebk9g
+
+Creating account 2uPw59LRMxttDgwra5S16TwGbAuFD6CRRojShYHVh7qp
+
+Signature: 5jvifH4q5fpzH6iZcqVnx7uvDZBMRNG1g7aBSZRmoA6UU5tHKbapzf86jwVwkVZvibC8ppHCkt691oyPGNZ1Vuep
+
+------------balance token -----------
+spl-token balance  3F4ULYaiafDhGtz2m36CCAMCV9xn7xU6rko5Mwtebk9g --url devnet
+
+--------- mint Token --------
+spl-token mint 3F4ULYaiafDhGtz2m36CCAMCV9xn7xU6rko5Mwtebk9g  9999 --url devnet
+ Minting 9999 tokens
+  Token: 3F4ULYaiafDhGtz2m36CCAMCV9xn7xU6rko5Mwtebk9g
+  Recipient: 2uPw59LRMxttDgwra5S16TwGbAuFD6CRRojShYHVh7qp
+
+Signature: 2AedXm3hU21Z4b1cduL6HhGjYxNXZeB3SQ8Tadpt9TtzCQPPSR4ykbSVR5HF6D19c97DVLtQgJT5haUPPvdB8btt
+
+---------------total supply-----------------
+spl-token supply  3F4ULYaiafDhGtz2m36CCAMCV9xn7xU6rko5Mwtebk9g --url devnet
+
+------------disable miniting ----------------
+spl-token authorize 3F4ULYaiafDhGtz2m36CCAMCV9xn7xU6rko5Mwtebk9g --disable --url devnet
+
+------------burning token-------------------
+spl-token burn 3F4ULYaiafDhGtz2m36CCAMCV9xn7xU6rko5Mwtebk9g 99 --url devnet
+
+------------transfer --------------------
+spl-token transfer 3F4ULYaiafDhGtz2m36CCAMCV9xn7xU6rko5Mwtebk9g 99 D6FiAn4D27bCtLZKakzNQfnmM3jYkjdSHPRhkYidPXRD --url devnet --allow-unfunded-recipient --fund-recipient
+
+Transfer 99 tokens
+  Sender: 2uPw59LRMxttDgwra5S16TwGbAuFD6CRRojShYHVh7qp
+  Recipient: D6FiAn4D27bCtLZKakzNQfnmM3jYkjdSHPRhkYidPXRD
+  Recipient associated token account: 8qAQgc5P4hkiNR6c9YFYEopkhgULWF1VeNtqxcA3rhRY
+  Funding recipient: 8qAQgc5P4hkiNR6c9YFYEopkhgULWF1VeNtqxcA3rhRY (0.00203928 SOL)
+
+Signature: d4wJdNc3jcrmQ5eE8WeVAUwdpq4ibp3XMByGdWsiY1jjVvGFy44F4mxCWmfUy4MJ8MWe3bUsxwXnjGCdQATJURV
+
+-----------   ANCHOR --------------------
+rust install
+https://github.com/LearnWithArjun/solana-env-setup/blob/main/mac_or_linux_setup.md
+
+sudo apt install pkg-config
+sudo apt-get install libudev-dev
+
+anchor --version
+
+--**** to install anchor project
+anchor init ProjectNAME
+//if you  got error
+[
+sudo apt remove yarn
+sudo apt install curl
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt update
+sudo apt install yarn
+]    // do this
+
+
