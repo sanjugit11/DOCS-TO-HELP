@@ -9,29 +9,355 @@ cargo build
 cargo run
 //.. this will compile the code and excute it at the same time
 
-_________________variable________________________
-//..variable are defined and printed 
-let a = 2;
-    let b= 4;
-    println!("Hello,{}, {}",a,b);     //{} this necessary to define for variable
+cargo new PROJECT_NAME;   // to create the new project
+
+ cargo run //to run the project
+
+ ** code excution by the main funtion**
+
+ if x>10 {}    //if is defined like this
+
+// this is loop
+ loop{
+    x +=1;
+    if x>10 {
+     break;
+    }
+    println!("this is value x {}",x);
+}
+
+// how to skip no 7 in interation
+
+fn main() {
+    let mut x = 0 ;
+ 
+    loop{
+        x +=1;
+        if x==7{
+         continue;
+        }
+        if x>10 {
+         break;
+        }
+        println!("this is value x {}",x);
+    }
+ }
+
+ //for loop 
+ fn main() {
+    let mut x = 30..50 ;  
+    for i in x{
+     println!("this is number {}",i);
+    }
+ }
+--------------------------------------------
+ //vec //vector
+ fn main() {
+    let  x = vec!["A","B","c"] ;
+    for i in x{
+     println!("this is number {}",i);
+    }
+ }
+    // output : this is number A
+    //         this is number B
+    //         this is number c
+ --------------------------------------
+ //this will return two varibale in loop
+ fn main() {
+    let  x = vec!["A","B","c"] ;
     
-//Array    
-     let arrDefine:[u8; 4] = [1,2,3,4];
-    println!("array:{}",arrDefine[0]);      //print array at zero memory 1
+    for (i,v)  in x.iter().enumerate(){
+     println!("this is number {} {}",i,v);
+    }
+ }
+
+//  output:  this is number 0 A
+//           this is number 1 B
+//           this is number 2 c
+ -------------------------------------------2--------------
+ //this is enum //
+          enum Direction{
+            Up,
+            Down,
+            Left,
+            Right
+        }
+        fn main() {
+            let player: Direction = Direction::Up;
+            match player{
+                Direction::Up => println!("this is up"),
+                Direction::Down => println!("this is down"),
+                Direction::Left => println!("this is left"),
+                Direction::Right => println!("this is right"),
+            }
+        }
+-----------------------------
+        //constant
+        const max_number: u8 = 20;
+fn main(){
+    for i in 0..max_number{
+        println!("the printed number is {}",i)
+    }
+}
+----------------------------------
+//tuple
+fn main(){
+    let tup1 = (1,2,3,4,5,(11,22,33));            //we can use string here in b/w
+    println!("the tuple number {}",(tup1.3));    //here it count work like (0,1,2,3)
+    println!("the tuple number {}",(tup1.5).2);   //here it count work like (1,2,3,4,5)
+}
+//output
+// the tuple number 4
+// the tuple number 33
+-------------------------------------
+//function
+fn main(){
+    mycall(10);
+}
+
+fn mycall(x :u8){
+    for i in 1..x{
+        println!("the printed number{}",i);
+    }
+}
+//function call----------------------
+fn main(){
+    mycall(10);
+}
+fn mycall(x :u8){
+    for i in 1..x{
+        if is_even(i){
+            println!("the printed even{}",i);
+        }else{
+            println!("the printed odd{}",i);
+        }
+    }
+    fn is_even(x:u8)->bool{
+        return x % 2 == 0;     
+    }
+}
+---------------------------------------
+//struct and calling
+fn main(){
+    struct Color{
+        red:u8,
+        green:u8,
+        blue:u8,
+        yellow:u8,
+    }
+    let call = Color{red:20,green:22,blue:33,yellow:88};
+
+    println!("color value is {},{},{},{}",call.red,call.green,call.blue,call.yellow);
+}
+
+// output: color value is 20,22,33,88
+----------------referance-------------------------
+//referance
+let mut x = 10;fn main(){
+    let wow = String::from("this is sanjeev from antier");
+    println!("the length of string {}" , wow.len());
+    println!("the length of string {}" , wow.is_empty());
+    // println!("the length of string {}" , wow.split_whitespace());
     
-//array to print multiple time
-    let arr:[u8; 5]= [100;5];
-    println!("{:?}",arr);                 //this qill print 
+    for token in wow.split_whitespace(){
+        println!("{}",token);
+    }
     
-    OUTPUT= [100, 100, 100, 100, 100]  
+}
+--------------------------------------
+let yr = &x;      //r is for referance & for indicate 
+--------------------/functional referance-------------------
+//functional referance
+struct Color{
+    red:u8,
+    green:u8,
+    blue:u8,
+    yellow:u8,
+}
+fn main(){
+    let call = Color{red:20,green:22,blue:33,yellow:88};
+    newcall(&call);
+}
+  fn newcall(call:&Color){
+      println!("color value is {},{},{},{}",call.red,call.green,call.blue,call.yellow);
+  }
     
-//tuple to print different variables
-   let tuple :(u8 , bool ,f32)=(5,true,4.4);
-    println!("first:{},second:{},third{}",tuple.0, tuple.1, tuple.2);
+------------------------------------------------------
+//array
+fn main(){
+    let array = [1,2,3,4,5];
+for i in array.iter(){
+println!("this is array value{}",i);
+}
+
+}
+ //----------Array---------------------------------
+
+ fn main(){
+    let array = [1,2,3,4,5];
+for i in 0..array.len(){
+println!("this is array value{}",i);
+}
+
+}
+----------------------------------------------------------
+//implementation keyword
+
+struct Call {
+    length : u8,
+    width: u8
+}
+impl Call{
+    fn value(&self){        //self for Call
+        println!("this is the length and width {},{}",self.length,self.width)
+    }
+}
+fn main(){
+    let call = Call{length:20,width:10};
+    call.value();
+}
+
+----------------string ----------------------------------
+fn main(){
+    let wow = String::from("this is sanjeev from antier");
+    println!("the length of string {}" , wow.len());
+    println!("the length of string {}" , wow.is_empty());
+    // println!("the length of string {}" , wow.split_whitespace());
     
-    OUTPUT= first:5,second:true,third4.4
+    for token in wow.split_whitespace(){
+        println!("{}",token);
+    }
     
-__________function_____________    
+}
+
+---------------string in struct------------------------
+struct Lol{
+    name: String,
+    age: u8
+ }
+ 
+ fn main(){
+     let call = Lol{name:String::from("hanji"), age:10};
+     println!("{},{}",call.name,call.age);
+ }
+
+ ------------------vector-------------------------------
+// Vec<string>   // string type of vector 
+fn main(){
+    let mut array = vec![1,3,4,5];
+    println!("{}",array.len());
+
+    array.push(33);
+    println!("{}",array.len());
+
+    for i in 0..array.len(){
+        println!("{}",array[i]);
+    }
+    array.remove(3);
+    println!("{}",array.len());
+
+    for i in 1..array.len(){
+        println!("{}",i);
+    }
+
+}
+--------------read the file---------------------------
+use std::fs::File;
+use std::io::prelude::*;
+ fn main(){       //read.txt is the file
+    let mut file = File::open("read.txt").expect("cant open file");
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)
+        .expect("Oops! Can not read the file");
+        println!("\n\n{}",contents);
+}
+-------------access command line argument in rust-------------------
+use std::env;
+fn main(){
+   let args: Vec<String> = env::args().collect();
+   for argument in args.iter() {
+    println!("{}",argument);
+    
+   }
+}
+--------------to create a file----------------------------
+use std::fs::file;
+use std::io::prelude::*;
+fn main(){
+    let mut file= File::create("rustCreated.txt")
+    .expect("could not create file");
+    file.write_all(b"welcome to rustcreated file")
+    .expect("could not write still");
+}
+
+-------------match function-----------------------------
+fn main(){
+    let number = 2;
+    match number{
+        1 => println!("this is 1"),
+        2 => println!("this is 2"),
+        _ => println!("this dont match")
+    }
+}
+-----------console input for user--------------------------
+use std::io;
+
+fn main(){
+    let mut input = String::new();
+    println!("hey mate ! say something");
+    match io::stdin().read_line(&mut input){
+        Ok(_)=>{
+            println!("success! you said: {}",input);
+        },
+        Err(e)=>{
+            println!("error{}",e);
+        }
+    }
+}
+-------------hashmap----------------------------------
+use std::collections::HashMap;
+fn main(){
+    let mut marks = HashMap::new();
+    marks.insert("Rust Programming", 96);
+    marks.insert("ust Programming", 86);
+    marks.insert("st Programming", 93);
+    marks.insert("t Programming", 46);
+
+    println!("{}",marks.len());
+//to match the progrmming
+    match marks.get("ust Programming"){
+        Some(mark)=> println!("you got for ust {}",mark),
+        None => println!("you didnt study ust")
+    }
+//for loop to retrun all value
+    for (subject, mark) in &marks{
+        println!("you {} for {}",subject,mark);    
+    }
+//check the value
+println!("did you study C++? {}",marks.contains_key("C++ Programming")); 
+}
+///OUTPUT:// 4
+        // you got for ust 86
+        // you ust Programming for 86
+        // you Rust Programming for 96
+        // you t Programming for 46
+        // you st Programming for 93
+        // did you study C++? false
+-------------random Numbers---------------------------------
+//we have to define the rand dependiecies in toml file
+rand = "0.3"
+//in rs file we will call create
+extern crate rand; //external calling crate rand
+ use rand::Rng;    //Rng is the thread of the crate
+
+ fn main(){
+    let random = rand::thread_rng().gen_range(1,11);
+    println!("{}",random);
+
+    let pickone = rand::thread_rng().gen_weighted_bool(5);  //1/5 chances of become true
+    println!("{}",pickone); 
+ }
+
     
     
     
