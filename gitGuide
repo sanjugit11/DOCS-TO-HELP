@@ -10,7 +10,7 @@ git pull  // if we are in same branch
     
 git checkout BRANCH-NAME       //TO MOVE IB ANOTHER BRANCH
 git checkout -b BRANCH-NAME    //MADE NEW BRANCH AND THEN MOVE IN IT      
-
+git checkout .                 // to reset
 
 git remote -v      // to check the origin URL
 git remote remove origin    // to delete the previous origin
