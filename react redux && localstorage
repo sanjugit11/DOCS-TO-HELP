@@ -1,0 +1,66 @@
+***//from where we want to save data in redux//****
+//file 1
+
+//this is a file from where we want to save data  
+
+import { useDispatch, useSelector } from "react-redux";
+ const dispatch = useDispatch();
+import { networkIdManager } from "../../redux/actions";   //we ahve to create an action where data will store
+
+ dispatch(networkIdManager(VALUE_u WANT TO Store)) 
+
+-------------------------persistAction.js
+//file 2
+**//here we will create action for data
+ /* seting action types */
+ 
+export const actionTypes = {
+  SAVE_NETWORK_ID: "SAVE_NETWORK_ID",                //export varibale we define for data
+  }
+  
+  export const networkIdManager = (data) => {       //this fn will be called for store data 
+  console.log(" data",data);
+  return {
+    type: actionTypes.SAVE_NETWORK_ID,             //this will save the data
+    payload: data,  
+  };
+}  
+--------------------------  persis.js
+
+file  3 
+//from here the redux data will be called to everywhere\
+
+import { actionTypes } from "../actions/PersistActions";
+
+const initialState = {
+networkId = 338
+}
+
+const persist = (state = initialState, action) => {
+
+    switch (action.type) {
+          case actionTypes.SAVE_NETWORK_ID:
+      return {
+        ...state,
+        networkid: action.payload,
+      };
+    
+    }
+}
+
+export default persist;
+
+-------------------------- call.js
+
+//where we wan to call data from redux
+
+import { useDispatch, useSelector } from "react-redux";
+
+const getNetworkId = useSelector((state) => state.persist.networkid);
+  console.log(getNetworkId,"getNetworkId===getNetworkId")
+  
+  --------------------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------LOCALSTORAGE---------------------------------------------
+  
+      localStorage.setItem("staticNwId",e.target.value?e.target.value:"338");   //store the value
+        const getvalue=  localStorage.getItem("staticNwId");            //get the local value
