@@ -1,0 +1,31 @@
+server connection  through terminal
+**NEED**
+A pem file
+A server address (EG : ec2-user@3.130.167.40 )
+
+Step1 : convert the pem file in the locked secure file
+  chmod 400 /path_to_key/my_key.pem
+
+Step 2 :ssh server_address -i /path_to_key/my_key.pem   
+      EG:- ssh ec2-user@3.130.167.40 -i ./stage-cryptostar.pem
+      
+  ------------------------------------------------------------
+ ** How to write a shell command or a script**
+Step1 : make a folder with .sh
+    EG:- ssh-con.sh
+Step2 : In the folder we will define the SHEbang
+      #! bin/sh
+      
+      :define the command you want to excute in the terminal
+      
+      #! bin/sh
+      ssh ec2-user@3.130.167.40 -i ./stage-cryptostar.pem
+      
+Step3 : run the script 
+      type1 : sh with the script file name
+             EG:-  sh backed.sh
+      type2 : firsty made this fiel and excutable file
+            EG :- chmod +x backed.sh
+            : Run now
+            EG :-  ./backed.sh       
+     
