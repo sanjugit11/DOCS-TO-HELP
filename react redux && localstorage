@@ -32,7 +32,7 @@ file  3
 
            import { actionTypes } from "../actions/PersistActions";
 
-           const initialState = {
+           const initialState = {       //it is good to define a initial state
            networkId = 338
            }
 
