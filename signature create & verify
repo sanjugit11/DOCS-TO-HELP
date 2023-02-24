@@ -1,0 +1,119 @@
+///signature.js file
+
+export const signSwapContract = async (walletAddress: any) => {
+  const contractCollection =
+    store.getState().contractCollection.contractCollection;
+  const ROUTER_TYPE = store.getState().swapData.router_type;
+  const ROUTERdata: any = contractCollection.filter(
+    (a: any) => a.symbol == ROUTER_TYPE
+  );
+  const chainId = store.getState().networkSlice.ChainID;
+
+  try {
+    const owner = walletAddress;
+    const web3: any = await callWeb3();
+
+    const EIP712Domain = [
+      { name: "name", type: "string" },
+      { name: "version", type: "string" },
+      { name: "chainId", type: "uint256" },
+      { name: "verifyingContract", type: "address" },
+    ];
+
+    const domain = {
+      name: "Shido_Router",
+      version: "1",
+      chainId: chainId,
+      verifyingContract: ROUTERdata[0]?.address,
+    };
+
+    const validateUser = [
+      { name: "message", type: "string" },
+      { name: "userAddress", type: "address" },
+      { name: "chainId", type: "uint160" },
+    ];
+
+    const message = {
+      message: VOUCHER_MESSAGE,
+      userAddress: walletAddress,
+      chainId: chainId
+    }
+
+    const data = JSON.stringify({
+      types: {
+        EIP712Domain,
+        validateUser
+      },
+      domain,
+      primaryType: "validateUser",
+      message
+    });
+
+    const from = owner;
+    const params = [from, data];
+    const method = "eth_signTypedData_v4";
+
+    const res = await web3?.currentProvider?.request({
+      method,
+      params,
+      from,
+    });
+    console.log("userSignature res",res);
+    
+    if (res) {
+      return {
+        "status": 200,
+        "signature": res
+      }
+    }
+    // return res;
+  } catch (err) {
+    console.log("Error in signSwapContract", err);
+    // return err;
+  }
+}
+
+------------------------------------------------------------------------------------
+//verify in solidity file
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol";
+
+contract tradePartialETH is EIP712Upgradeable{
+  struct validateUser{
+        string message;
+        address userAddress;
+        uint160 chainId;
+        bytes signature;
+    }
+    
+    
+    
+    function hashFun(validateUser memory data)
+        internal
+        view
+        returns (bytes32)
+    {
+        return
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        keccak256(
+                            "validateUser(string message,address userAddress,uint160 chainId)"),
+                        keccak256(bytes(data.message)),
+                        data.userAddress,
+                        data.chainId
+                    )
+                )
+            );
+    }
+    
+    
+    
+    function verifyMessage(validateUser memory data)
+        public
+        view
+        returns (address)
+    {
+        bytes32 digest = hashFun(data);
+        return ECDSAUpgradeable.recover(digest, data.signature);
+    }
+}    
